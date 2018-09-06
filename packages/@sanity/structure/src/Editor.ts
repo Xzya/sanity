@@ -19,8 +19,7 @@ export class EditorBuilder implements Serializable {
   }
 
   id(id: string): EditorBuilder {
-    this.spec.id = id
-    return this
+    return this.clone({id})
   }
 
   getId() {
@@ -28,8 +27,7 @@ export class EditorBuilder implements Serializable {
   }
 
   title(title: string): EditorBuilder {
-    this.spec.title = title
-    return this
+    return this.clone({title})
   }
 
   getTitle() {
@@ -37,12 +35,12 @@ export class EditorBuilder implements Serializable {
   }
 
   documentId(documentId: string): EditorBuilder {
-    this.spec.options = {
-      ...(this.spec.options || {}),
-      id: documentId
-    }
-
-    return this
+    return this.clone({
+      options: {
+        ...(this.spec.options || {}),
+        id: documentId
+      }
+    })
   }
 
   getDocumentId() {
@@ -50,12 +48,12 @@ export class EditorBuilder implements Serializable {
   }
 
   schemaType(documentType: SchemaType | string): EditorBuilder {
-    this.spec.options = {
-      ...(this.spec.options || {}),
-      type: typeof documentType === 'string' ? documentType : documentType.name
-    }
-
-    return this
+    return this.clone({
+      options: {
+        ...(this.spec.options || {}),
+        type: typeof documentType === 'string' ? documentType : documentType.name
+      }
+    })
   }
 
   getSchemaType() {

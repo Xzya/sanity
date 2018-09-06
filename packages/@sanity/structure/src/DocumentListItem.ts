@@ -24,8 +24,7 @@ export class DocumentListItemBuilder extends ListItemBuilder {
   }
 
   id(id: string): DocumentListItemBuilder {
-    this.spec.id = id
-    return this
+    return this.clone({id})
   }
 
   getId() {
@@ -33,8 +32,7 @@ export class DocumentListItemBuilder extends ListItemBuilder {
   }
 
   title(title: string): DocumentListItemBuilder {
-    this.spec.title = undefined
-    return this
+    return this.clone({title})
   }
 
   getTitle() {

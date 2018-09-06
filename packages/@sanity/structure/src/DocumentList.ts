@@ -70,7 +70,10 @@ interface DocumentListOptions {
   defaultOrdering?: SortItem[]
 }
 
-export class DocumentListBuilder extends GenericListBuilder<PartialDocumentList> {
+export class DocumentListBuilder extends GenericListBuilder<
+  PartialDocumentList,
+  DocumentListBuilder
+> {
   protected spec: PartialDocumentList
 
   constructor(spec?: DocumentListInput) {

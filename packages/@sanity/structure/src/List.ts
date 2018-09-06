@@ -39,7 +39,7 @@ export interface BuildableList extends BuildableGenericList {
   items?: (ListItem | ListItemBuilder)[]
 }
 
-export class ListBuilder extends GenericListBuilder<BuildableList> {
+export class ListBuilder extends GenericListBuilder<BuildableList, ListBuilder> {
   protected spec: BuildableList
 
   constructor(spec?: ListInput) {
@@ -48,8 +48,11 @@ export class ListBuilder extends GenericListBuilder<BuildableList> {
   }
 
   items(items: (ListItemBuilder | ListItem)[]): ListBuilder {
-    this.spec.items = items
-    return this
+    return this.clone({items})
+  }
+
+  getItems() {
+    return this.spec.items
   }
 
   serialize(options: SerializeOptions = {path: []}): List {
@@ -69,5 +72,11 @@ export class ListBuilder extends GenericListBuilder<BuildableList> {
       child: this.spec.child || resolveChildForItem,
       items: (items || []).map((item, index) => maybeSerializeListItem(item, index, path))
     }
+  }
+
+  clone(withSpec?: BuildableList) {
+    const builder = new ListBuilder()
+    builder.spec = {...this.spec, ...(withSpec || {})}
+    return builder
   }
 }
