@@ -1,11 +1,9 @@
-import {StructureNode, SerializeOptions, Serializable} from './StructureNodes'
-import {ChildResolver} from './ChildResolver'
+import {StructureNode, SerializeOptions, Serializable, Child} from './StructureNodes'
 import {Layout, layoutOptions} from './Layout'
 import {MenuItem, MenuItemBuilder, maybeSerializeMenuItem} from './MenuItem'
 import {MenuItemGroup, MenuItemGroupBuilder, maybeSerializeMenuItemGroup} from './MenuItemGroup'
 import {IntentChecker} from './Intent'
 import {SerializeError} from './SerializeError'
-import {getSerializedChildResolver} from './util/getSerializedChildResolver'
 
 function noChildResolver() {
   return undefined
@@ -14,7 +12,7 @@ function noChildResolver() {
 export interface BaseGenericList extends StructureNode {
   defaultLayout?: Layout
   canHandleIntent?: IntentChecker
-  resolveChildForItem: ChildResolver
+  child: Child
 }
 
 // "POJO"/verbatim-version - end result
@@ -38,7 +36,7 @@ export interface GenericListInput extends StructureNode {
   menuItemGroups?: (MenuItemGroup | MenuItemGroupBuilder)[]
   defaultLayout?: Layout
   canHandleIntent?: IntentChecker
-  resolveChildForItem?: ChildResolver
+  child?: Child
 }
 
 export abstract class GenericListBuilder<L extends BuildableGenericList> implements Serializable {
@@ -70,8 +68,8 @@ export abstract class GenericListBuilder<L extends BuildableGenericList> impleme
     return this
   }
 
-  child(resolver: ChildResolver) {
-    this.spec.resolveChildForItem = resolver
+  child(resolver: Child) {
+    this.spec.child = resolver
     return this
   }
 
@@ -99,9 +97,7 @@ export abstract class GenericListBuilder<L extends BuildableGenericList> impleme
       title: this.spec.title,
       type: 'genericList',
       defaultLayout,
-      resolveChildForItem: getSerializedChildResolver(
-        this.spec.resolveChildForItem || noChildResolver
-      ),
+      child: this.spec.child || noChildResolver,
       canHandleIntent: this.intentChecker,
       menuItems: (this.spec.menuItems || []).map((item, i) =>
         maybeSerializeMenuItem(item, i, path)

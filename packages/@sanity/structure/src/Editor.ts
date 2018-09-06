@@ -23,9 +23,17 @@ export class EditorBuilder implements Serializable {
     return this
   }
 
+  getId() {
+    return this.spec.id
+  }
+
   title(title: string): EditorBuilder {
     this.spec.title = title
     return this
+  }
+
+  getTitle() {
+    return this.spec.title
   }
 
   documentId(documentId: string): EditorBuilder {
@@ -37,6 +45,10 @@ export class EditorBuilder implements Serializable {
     return this
   }
 
+  getDocumentId() {
+    return this.spec.options && this.spec.options.id
+  }
+
   schemaType(documentType: SchemaType | string): EditorBuilder {
     this.spec.options = {
       ...(this.spec.options || {}),
@@ -44,6 +56,10 @@ export class EditorBuilder implements Serializable {
     }
 
     return this
+  }
+
+  getSchemaType() {
+    return this.spec.options && this.spec.options.type
   }
 
   serialize({path, index, hint}: SerializeOptions = {path: []}): EditorNode {
@@ -78,5 +94,11 @@ export class EditorBuilder implements Serializable {
       type: 'document',
       options: {id: options.id, type: options.type}
     }
+  }
+
+  clone(withSpec?: PartialEditorNode) {
+    const builder = new EditorBuilder()
+    builder.spec = {...this.spec, ...(withSpec || {})}
+    return builder
   }
 }

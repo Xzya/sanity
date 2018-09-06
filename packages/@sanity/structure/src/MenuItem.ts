@@ -45,9 +45,17 @@ export class MenuItemBuilder implements Serializable {
     return this
   }
 
+  getAction() {
+    return this.spec.action
+  }
+
   intent(intent: Intent): MenuItemBuilder {
     this.spec.intent = intent
     return this
+  }
+
+  getIntent() {
+    return this.spec.intent
   }
 
   title(title: string): MenuItemBuilder {
@@ -55,9 +63,17 @@ export class MenuItemBuilder implements Serializable {
     return this
   }
 
+  getTitle() {
+    return this.spec.title
+  }
+
   group(group: string): MenuItemBuilder {
     this.spec.group = group
     return this
+  }
+
+  getGroup() {
+    return this.spec.group
   }
 
   icon(icon: Function): MenuItemBuilder {
@@ -65,14 +81,26 @@ export class MenuItemBuilder implements Serializable {
     return this
   }
 
+  getIcon() {
+    return this.spec.icon
+  }
+
   params(params: object): MenuItemBuilder {
     this.spec.params = params
     return this
   }
 
+  getParams() {
+    return this.spec.params
+  }
+
   showAsAction(asAction: boolean | ShowAsAction): MenuItemBuilder {
     this.spec.showAsAction = asAction
     return this
+  }
+
+  getShowAsAction() {
+    return this.spec.showAsAction
   }
 
   serialize(options: SerializeOptions = {path: []}): MenuItem {
@@ -106,6 +134,12 @@ export class MenuItemBuilder implements Serializable {
     }
 
     return {...this.spec, title}
+  }
+
+  clone(withSpec?: PartialMenuItem): MenuItemBuilder {
+    const builder = new MenuItemBuilder()
+    builder.spec = {...this.spec, ...(withSpec || {})}
+    return builder
   }
 }
 

@@ -28,9 +28,17 @@ export class DocumentListItemBuilder extends ListItemBuilder {
     return this
   }
 
+  getId() {
+    return this.spec.id
+  }
+
   title(title: string): DocumentListItemBuilder {
     this.spec.title = undefined
     return this
+  }
+
+  getTitle() {
+    return this.spec.title
   }
 
   serialize(options: SerializeOptions = {path: []}): DocumentListItem {
@@ -45,5 +53,11 @@ export class DocumentListItemBuilder extends ListItemBuilder {
     }
 
     return {...spec, schemaType: spec.schemaType, _id: spec.id}
+  }
+
+  clone(withSpec?: PartialDocumentListItem) {
+    const builder = new DocumentListItemBuilder()
+    builder.spec = {...this.spec, ...(withSpec || {})}
+    return builder
   }
 }
