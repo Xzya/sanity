@@ -92,7 +92,7 @@ type State = {
 }
 
 export default withPatchSubscriber(
-  class SyncWrapper extends React.PureComponent<Props, State> {
+  class SyncWrapper extends React.Component<Props, State> {
     _input = null
     _select = null
     _undoRedoStack = {undo: [], redo: []}
@@ -103,6 +103,35 @@ export default withPatchSubscriber(
 
     // Keep track of what the editor value is (as seen in the editor) before it is changed by something.
     _beforeChangeEditorValue = null
+
+    static getDerivedStateFromProps(nextProps, nextState) {
+      // Make sure changes to markers are reflected in the editor value.
+      // We use decorators in Slate to force the relevant editor nodes to re-render
+      // when markers change
+      if (
+        nextProps.markers &&
+        nextProps.markers.length > 0 &&
+        nextState.editorValue &&
+        nextState.editorValue.decorations.size !== nextProps.markers.length
+      ) {
+        const decorations = nextProps.markers.map(mrkr => {
+          return {
+            anchor: {key: mrkr.path[0]._key, offset: 0},
+            focus: {key: mrkr.path[0]._key, offset: 0},
+            mark: {type: '__marker'} // non-visible mark (we just want the block to re-render)
+          }
+        })
+        const {editorValue} = nextState
+        const change = editorValue
+          .change()
+          .setOperationFlag('save', false)
+          .setValue({decorations})
+        return {
+          editorValue: change.value
+        }
+      }
+      return null
+    }
 
     constructor(props) {
       super(props)
@@ -133,14 +162,12 @@ export default withPatchSubscriber(
         value
       })
       const insertOrRemoveTextOnly = isInsertOrRemoveTextOperations(change.operations)
-      const isTokenChar =
-        insertOrRemoveTextOnly &&
-        change.operations.get(0) &&
-        SEND_PATCHES_TOKEN_CHARS.includes(change.operations.get(0).text)
+      const text = change.operations.get(0) && change.operations.get(0).text
+      const isTokenChar = insertOrRemoveTextOnly && text && SEND_PATCHES_TOKEN_CHARS.includes(text)
       if (!insertOrRemoveTextOnly || isTokenChar) {
         this.sendPatchesFromChange()
       } else {
-        this.debouncedSendPatchesFromChange()
+        this.sendPatchesFromChangeDebounced()
       }
       if (callback) {
         callback(change)
@@ -149,7 +176,7 @@ export default withPatchSubscriber(
       return change
     }
 
-    debouncedSendPatchesFromChange = debounce(() => {
+    sendPatchesFromChangeDebounced = debounce(() => {
       this.sendPatchesFromChange()
     }, 1000)
 
